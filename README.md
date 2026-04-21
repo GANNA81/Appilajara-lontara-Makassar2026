@@ -3,40 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lontara Makassar Digital</title>
+    <title>Pabbicarang Lontara Pro</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #f8f9fa; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #b71c1c; margin-bottom: 10px; }
-        
-        /* Input Section */
-        input { width: 90%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 10px; outline: none; transition: 0.3s; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { color: #b71c1c; margin-bottom: 5px; }
+        input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #eee; border-radius: 12px; margin: 20px 0; box-sizing: border-box; outline: none; }
         input:focus { border-color: #b71c1c; }
-        #hasilLontara { font-size: 60px; color: #b71c1c; min-height: 80px; margin: 10px 0; word-wrap: break-word; }
-
-        /* Vokal Control */
-        .vokal-btn { border: none; background: #eee; padding: 10px 18px; margin: 5px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        #hasilLontara { font-size: 70px; color: #b71c1c; margin: 20px 0; cursor: pointer; min-height: 80px; }
+        .vokal-btn { border: none; background: #f0f0f0; padding: 12px 20px; margin: 5px; border-radius: 50px; cursor: pointer; font-weight: bold; }
         .vokal-btn.active { background: #b71c1c; color: white; }
-
-        /* Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; margin-top: 30px; }
-        .card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .aksara { font-size: 40px; display: block; color: #222; }
-        .latin { font-size: 16px; color: #888; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 30px; }
+        .card { background: #fff; padding: 15px; border-radius: 15px; border: 1px solid #f0f0f0; cursor: pointer; transition: 0.2s; }
+        .card:hover { transform: scale(1.05); background: #fff5f5; }
+        .aksara { font-size: 35px; display: block; color: #333; }
+        .latin { font-size: 14px; color: #999; text-transform: uppercase; }
+        .info { font-size: 12px; color: #aaa; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>ᨒᨚᨈᨑ ᨆᨀᨔᨑ</h1>
-    <p>Ketik Latin ke Lontara:</p>
+    <h1>ᨒᨚᨈᨑ</h1>
+    <p>Ketik & Klik untuk Mendengar Suara</p>
     
-    <input type="text" id="inputLatin" placeholder="Contoh: makasara" oninput="transliterasi()">
-    <div id="hasilLontara"></div>
+    <input type="text" id="inputLatin" placeholder="Ketik di sini..." oninput="transliterasi()">
+    <div id="hasilLontara" onclick="bicaraLontara()"></div>
 
-    <hr>
-
-    <p>Daftar Huruf & Vokal:</p>
     <div id="vokalGroup">
         <button class="vokal-btn active" onclick="updateGrid('', 'a')">a</button>
         <button class="vokal-btn" onclick="updateGrid('ᨗ', 'i')">i</button>
@@ -46,6 +39,8 @@
     </div>
 
     <div class="grid" id="lontaraGrid"></div>
+    
+    <p class="info">Tips: Klik kartu huruf untuk mendengar suaranya.</p>
 </div>
 
 <script>
@@ -58,20 +53,29 @@
         {d: 'ᨔ', l: 'sa'}, {d: 'ᨕ', l: 'a'}, {d: 'ᨖ', l: 'ha'}
     ];
 
-    // Fungsi Ketik ke Lontara
+    // FITUR SUARA
+    function bicara(teks) {
+        const suara = new SpeechSynthesisUtterance();
+        suara.text = teks;
+        suara.lang = 'id-ID'; // Menggunakan aksen Indonesia agar mirip
+        window.speechSynthesis.speak(suara);
+    }
+
+    function bicaraLontara() {
+        const teks = document.getElementById('inputLatin').value;
+        if(teks) bicara(teks);
+    }
+
     function transliterasi() {
         let teks = document.getElementById('inputLatin').value.toLowerCase();
         let hasil = "";
         let i = 0;
         while (i < teks.length) {
             let found = false;
-            // Cek 3 atau 2 huruf (nga, ka, dll)
             for (let len = 3; len >= 2; len--) {
                 let sub = teks.substring(i, i + len);
-                let match = data.find(item => item.l === sub || (sub.length === 2 && item.l === sub));
-                if (match) {
-                    hasil += match.d; i += len; found = true; break;
-                }
+                let match = data.find(item => item.l === sub);
+                if (match) { hasil += match.d; i += len; found = true; break; }
             }
             if (!found) { 
                 if(teks[i] === 'a') hasil += 'ᨕ';
@@ -82,21 +86,23 @@
         document.getElementById('hasilLontara').innerText = hasil;
     }
 
-    // Fungsi Update Tampilan Kartu
     function updateGrid(tanda, v) {
         const grid = document.getElementById('lontaraGrid');
-        grid.innerHTML = data.map(item => `
-            <div class="card">
-                <span class="aksara">${item.d}${tanda}</span>
-                <span class="latin">${item.l.replace('a', v)}</span>
-            </div>
-        `).join('');
+        grid.innerHTML = data.map(item => {
+            const bunyi = item.l.replace('a', v);
+            return `
+                <div class="card" onclick="bicara('${bunyi}')">
+                    <span class="aksara">${item.d}${tanda}</span>
+                    <span class="latin">${bunyi}</span>
+                </div>
+            `;
+        }).join('');
         
         document.querySelectorAll('.vokal-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
+        if(event) event.target.classList.add('active');
     }
 
-    updateGrid('', 'a'); // Inisialisasi awal
+    updateGrid('', 'a');
 </script>
 
 </body>
