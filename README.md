@@ -3,74 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pabbicarang Lontara Makassar</title>
+    <title>Lontara Makassar Digital</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #fdfdfd; margin: 0; padding: 20px; }
-        h1 { color: #b71c1c; margin-bottom: 5px; }
-        .subtitle { color: #666; margin-bottom: 30px; }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #f8f9fa; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #b71c1c; margin-bottom: 10px; }
         
-        /* Kontrol Vokal */
-        .vokal-control { margin-bottom: 30px; sticky; top: 10px; background: white; padding: 10px; border-radius: 50px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .vokal-btn { border: none; background: #eee; padding: 10px 20px; margin: 0 5px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        /* Input Section */
+        input { width: 90%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 10px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #b71c1c; }
+        #hasilLontara { font-size: 60px; color: #b71c1c; min-height: 80px; margin: 10px 0; word-wrap: break-word; }
+
+        /* Vokal Control */
+        .vokal-btn { border: none; background: #eee; padding: 10px 18px; margin: 5px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .vokal-btn.active { background: #b71c1c; color: white; }
 
-        /* Grid Huruf */
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 15px; max-width: 900px; margin: 0 auto; }
-        .huruf-card { background: white; padding: 20px; border-radius: 15px; border: 1px solid #eee; transition: 0.3s; }
-        .aksara { font-size: 50px; display: block; margin-bottom: 10px; color: #333; }
-        .latin { font-size: 18px; color: #888; text-transform: capitalize; }
+        /* Grid */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px; margin-top: 30px; }
+        .card { background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .aksara { font-size: 40px; display: block; color: #222; }
+        .latin { font-size: 16px; color: #888; }
     </style>
 </head>
 <body>
 
-    <h1>ᨒᨚᨈᨑ Lontara</h1>
-    <p class="subtitle">Aplikasi Belajar Aksara Makassar</p>
+<div class="container">
+    <h1>ᨒᨚᨈᨑ ᨆᨀᨔᨑ</h1>
+    <p>Ketik Latin ke Lontara:</p>
+    
+    <input type="text" id="inputLatin" placeholder="Contoh: makasara" oninput="transliterasi()">
+    <div id="hasilLontara"></div>
 
-    <div class="vokal-control">
-        <button class="vokal-btn active" onclick="ubahVokal('', 'a')">a</button>
-        <button class="vokal-btn" onclick="ubahVokal('ᨗ', 'i')">i</button>
-        <button class="vokal-btn" onclick="ubahVokal('ᨘ', 'u')">u</button>
-        <button class="vokal-btn" onclick="ubahVokal('ᨙ', 'e')">e</button>
-        <button class="vokal-btn" onclick="ubahVokal('ᨚ', 'o')">o</button>
+    <hr>
+
+    <p>Daftar Huruf & Vokal:</p>
+    <div id="vokalGroup">
+        <button class="vokal-btn active" onclick="updateGrid('', 'a')">a</button>
+        <button class="vokal-btn" onclick="updateGrid('ᨗ', 'i')">i</button>
+        <button class="vokal-btn" onclick="updateGrid('ᨘ', 'u')">u</button>
+        <button class="vokal-btn" onclick="updateGrid('ᨙ', 'e')">e</button>
+        <button class="vokal-btn" onclick="updateGrid('ᨚ', 'o')">o</button>
     </div>
 
-    <div class="grid-container" id="lontaraGrid">
-        </div>
+    <div class="grid" id="lontaraGrid"></div>
+</div>
 
-    <script>
-        // Data dasar Lontara
-        const daftarHuruf = [
-            {dasar: 'ᨀ', latin: 'ka'}, {dasar: 'ᨁ', latin: 'ga'}, {dasar: 'ᨂ', latin: 'nga'}, {dasar: 'ᨃ', latin: 'ngka'},
-            {dasar: 'ᨄ', latin: 'pa'}, {dasar: 'ᨅ', latin: 'ba'}, {dasar: 'ᨆ', latin: 'ma'}, {dasar: 'ᨇ', latin: 'mpa'},
-            {dasar: 'ᨈ', latin: 'ta'}, {dasar: 'ᨉ', latin: 'da'}, {dasar: 'ᨊ', latin: 'na'}, {dasar: 'ᨋ', latin: 'nra'},
-            {dasar: 'ᨌ', latin: 'ca'}, {dasar: 'ᨍ', latin: 'ja'}, {dasar: 'ᨎ', latin: 'nya'}, {dasar: 'ᨏ', latin: 'nyca'}
-        ];
+<script>
+    const data = [
+        {d: 'ᨀ', l: 'ka'}, {d: 'ᨁ', l: 'ga'}, {d: 'ᨂ', l: 'nga'}, {d: 'ᨃ', l: 'ngka'},
+        {d: 'ᨄ', l: 'pa'}, {d: 'ᨅ', l: 'ba'}, {d: 'ᨆ', l: 'ma'}, {d: 'ᨇ', l: 'mpa'},
+        {d: 'ᨈ', l: 'ta'}, {d: 'ᨉ', l: 'da'}, {d: 'ᨊ', l: 'na'}, {d: 'ᨋ', l: 'nra'},
+        {d: 'ᨌ', l: 'ca'}, {d: 'ᨍ', l: 'ja'}, {d: 'ᨎ', l: 'nya'}, {d: 'ᨏ', l: 'nyca'},
+        {d: 'ᨐ', l: 'ya'}, {d: 'ᨑ', l: 'ra'}, {d: 'ᨒ', l: 'la'}, {d: 'ᨓ', l: 'wa'}, 
+        {d: 'ᨔ', l: 'sa'}, {d: 'ᨕ', l: 'a'}, {d: 'ᨖ', l: 'ha'}
+    ];
 
-        function ubahVokal(tanda, vokal) {
-            const grid = document.getElementById('lontaraGrid');
-            grid.innerHTML = ''; // Bersihkan layar
-
-            daftarHuruf.forEach(item => {
-                // Ganti huruf vokal di tulisan latin (misal: 'ka' jadi 'ki')
-                let latinBaru = item.latin.replace('a', vokal);
-                
-                grid.innerHTML += `
-                    <div class="huruf-card">
-                        <span class="aksara">${item.dasar}${tanda}</span>
-                        <span class="latin">${latinBaru}</span>
-                    </div>
-                `;
-            });
-
-            // Efek tombol aktif
-            document.querySelectorAll('.vokal-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.innerText === vokal) btn.classList.add('active');
-            });
+    // Fungsi Ketik ke Lontara
+    function transliterasi() {
+        let teks = document.getElementById('inputLatin').value.toLowerCase();
+        let hasil = "";
+        let i = 0;
+        while (i < teks.length) {
+            let found = false;
+            // Cek 3 atau 2 huruf (nga, ka, dll)
+            for (let len = 3; len >= 2; len--) {
+                let sub = teks.substring(i, i + len);
+                let match = data.find(item => item.l === sub || (sub.length === 2 && item.l === sub));
+                if (match) {
+                    hasil += match.d; i += len; found = true; break;
+                }
+            }
+            if (!found) { 
+                if(teks[i] === 'a') hasil += 'ᨕ';
+                else hasil += teks[i]; 
+                i++; 
+            }
         }
+        document.getElementById('hasilLontara').innerText = hasil;
+    }
 
-        // Jalankan pertama kali
-        ubahVokal('', 'a');
-    </script>
+    // Fungsi Update Tampilan Kartu
+    function updateGrid(tanda, v) {
+        const grid = document.getElementById('lontaraGrid');
+        grid.innerHTML = data.map(item => `
+            <div class="card">
+                <span class="aksara">${item.d}${tanda}</span>
+                <span class="latin">${item.l.replace('a', v)}</span>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.vokal-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    updateGrid('', 'a'); // Inisialisasi awal
+</script>
+
 </body>
 </html>
